@@ -1,11 +1,5 @@
 (function () {
-    var tap=new Event('tap',{ bubbles: true,cancelable: true}),
-        swipeLeft =new Event('swipeLeft',{ bubbles: true,cancelable: true}),
-        swipeRight=new Event('swipeRight',{ bubbles: true,cancelable: true}),
-        swipeUp=new Event('swipeUp',{ bubbles: true,cancelable: true}),
-        swipeDown=new Event('swipeDown',{ bubbles: true,cancelable: true}),
-        longTap=new Event('longTap',{ bubbles: true,cancelable: true}),
-        coord={},
+    var coord={},
         start={},
         el;
 
@@ -13,6 +7,10 @@
     document.addEventListener('touchmove',touchMove);
     document.addEventListener('touchend',touchEnd);
     document.addEventListener('touchcanel',touchCancel);
+
+    function newEvent(type){
+        return new Event(type,{ bubbles: true,cancelable: true});
+    }
 
     function touchCancel () {
         coord = {}
@@ -26,9 +24,7 @@
             time: Date.now()
         };
         el= e.target;
-        console.log(el);
         el='tagName' in el ? el : el.parentNode;
-        console.log(el);
     }
 
     function touchMove(e){
@@ -41,16 +37,16 @@
 
     function touchEnd(){
         var touchTimes = Date.now() - start.time,
-            c = 250 > touchTimes && Math.abs(coord.x) > 20 || Math.abs(coord.x) > 80,
-            s = 250 > touchTimes && Math.abs(coord.y) > 20 || Math.abs(coord.y) > 80,
-            left = coord.x < 0,
-            top = coord.y < 0;
+                c = 250 > touchTimes && Math.abs(coord.x) > 20 || Math.abs(coord.x) > 80,
+                s = 250 > touchTimes && Math.abs(coord.y) > 20 || Math.abs(coord.y) > 80,
+                left = coord.x < 0,
+                top = coord.y < 0;
         if (250 > touchTimes && (isNaN(coord.y) || Math.abs(coord.y)) < 12 && (isNaN(coord.x) || Math.abs(coord.x) < 12)) {
-            el.dispatchEvent(tap);
+            el.dispatchEvent(newEvent('tap'));
         }else if(750<touchTimes && (isNaN(coord.y) || Math.abs(coord.y)) < 12 && (isNaN(coord.x) || Math.abs(coord.x) < 12)){
-            el.dispatchEvent(longTap);
+            el.dispatchEvent(newEvent('longTap'));
         }
-        c ? el.dispatchEvent(left ? swipeLeft : swipeRight) : s && el.dispatchEvent(top ? swipeUp : swipeDown);
+        c ? el.dispatchEvent(left ? newEvent('swipeLeft') : newEvent('swipeRight')) : s && el.dispatchEvent(top ? newEvent('swipeUp') : newEvent('swipeDown'));
 
         coord={};
     }
